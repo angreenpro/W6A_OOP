@@ -38,6 +38,8 @@ W6/
 ├── README.md
 ├── AI_prompt_logs.md          # Nhật ký tương tác với AI
 ├── lab w06.pdf / lab w06.txt  # Đề bài
+├── run.ps1                    # Script tự động biên dịch và chạy trên PowerShell (UTF-8)
+├── run.bat                    # Script tự động biên dịch và chạy trên CMD (UTF-8)
 └── src/
     ├── Main.java              # Điểm chạy chương trình, kịch bản kiểm thử
     ├── enums/
@@ -108,45 +110,72 @@ Chỉ khi hợp lệ mới: tạo `BorrowItem` → chuyển thiết bị sang `B
 
 ## 6. Hướng dẫn chạy chương trình
 
-### 6.1. Yêu cầu
-- **JDK 17+** (đã kiểm tra với JDK 27). Kiểm tra bằng:
-  ```bash
+### 6.1. Yêu cầu môi trường
+- **JDK 17+** (đã kiểm tra tương thích tốt với JDK 17, 21, 27).
+- Kiểm tra cài đặt Java trên máy:
+  ```powershell
   java -version
   javac -version
   ```
 
-### 6.2. Chạy bằng dòng lệnh
-Mở terminal tại thư mục gốc `W6` (thư mục chứa `src`).
+### 6.2. Các cách chạy chương trình
+
+#### Cách 1: Sử dụng Script tự động (Khuyên dùng - Nhanh nhất & Không lỗi font)
+Mở terminal tại thư mục gốc `W6` (nơi chứa file script và thư mục `src/`), chạy file script tương ứng với terminal bạn đang dùng:
+
+- **Trên PowerShell** (Terminal mặc định trong VS Code):
+  ```powershell
+  .\run.ps1
+  ```
+- **Trên Command Prompt (CMD)**:
+  ```bat
+  run.bat
+  ```
+
+> [!TIP]
+> Script đã tự động cấu hình bảng mã UTF-8 (`[Console]::OutputEncoding`, `chcp 65001`), biên dịch toàn bộ các lớp vào thư mục `out/` và thực thi chương trình.
+
+---
+
+#### Cách 2: Chạy thủ công bằng dòng lệnh
 
 **Windows – PowerShell**
 ```powershell
-# Biên dịch toàn bộ file .java vào thư mục out
+# 1. Cấu hình bảng mã UTF-8 cho PowerShell (bắt buộc để không bị lỗi font tiếng Việt)
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+chcp 65001
+
+# 2. Biên dịch toàn bộ mã nguồn vào thư mục out với encoding UTF-8
 javac -encoding UTF-8 -d out (Get-ChildItem -Recurse src -Filter *.java).FullName
 
-# Chạy chương trình
+# 3. Chạy chương trình
 java -cp out Main
 ```
 
 **Windows – CMD**
 ```bat
+chcp 65001
 dir /s /b src\*.java > sources.txt
 javac -encoding UTF-8 -d out @sources.txt
+del sources.txt
 java -cp out Main
 ```
 
-**macOS / Linux**
+**macOS / Linux (Bash / Zsh)**
 ```bash
 javac -encoding UTF-8 -d out $(find src -name "*.java")
 java -cp out Main
 ```
 
-> [!NOTE]
-> - `-d out` đặt các file `.class` vào thư mục `out/` theo đúng cấu trúc package, tránh làm bẩn `src`.
-> - `-encoding UTF-8` giúp hiển thị đúng tiếng Việt trong chuỗi.
-> - Nếu tiếng Việt bị lỗi font trên console Windows, chạy `chcp 65001` trước khi `java`.
+---
 
-### 6.3. Chạy bằng VS Code
-1. Cài extension **Extension Pack for Java** (Microsoft).
-2. Mở thư mục `W6` bằng VS Code.
-3. Mở `src/Main.java` → bấm **Run** phía trên hàm `main` (hoặc nhấn `F5`).
+#### Cách 3: Chạy trực tiếp trên Visual Studio Code (GUI)
+1. Cài đặt tiện ích mở rộng: **Extension Pack for Java** (Microsoft).
+2. Mở thư mục dự án `W6` trong VS Code.
+3. Mở file [src/Main.java](file:///d:/VS%20Code/OOP/W6/src/Main.java).
+4. Nhấn nút **Run** (biểu tượng ▶️ xuất hiện ngay phía trên dòng khai báo hàm `public static void main`) hoặc nhấn phím tắt **F5** / **Ctrl + F5**.
+
+> [!NOTE]
+> - Trong mã nguồn [src/Main.java](file:///d:/VS%20Code/OOP/W6/src/Main.java), chương trình đã tích hợp sẵn khối `static` tự động ép kiểu `PrintStream` sang UTF-8 cho `System.out` và `System.err`.
+> - **Lưu ý riêng trên Windows PowerShell**: Khi gõ lệnh thủ công trên PowerShell, lệnh `chcp 65001` chỉ áp dụng cho tiến trình Win32 ngoài. Cần chạy thêm `[Console]::OutputEncoding = [System.Text.Encoding]::UTF8` để PowerShell dịch đúng các byte UTF-8 từ Java mà không bị vỡ font.
 
